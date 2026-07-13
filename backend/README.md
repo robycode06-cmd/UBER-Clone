@@ -1,0 +1,99 @@
+# Uber Clone Backend - API Documentation
+
+This directory contains the backend services for the Uber Clone application.
+
+## User Registration Endpoint
+
+### Description
+Registers a new user in the system by validating their inputs, hashing their password, and saving their profile to the database. Upon successful registration, the API returns a JWT authentication token along with the newly created user object (excluding the password).
+
+---
+
+### Endpoint Information
+- **URL Path:** `/users/register`
+- **HTTP Method:** `POST`
+- **Headers:**
+  - `Content-Type: application/json`
+
+---
+
+### Request Body Schema
+
+The request body must be a JSON object containing the user's registration details.
+
+| Field Name | Type | Required | Description / Constraints |
+| :--- | :--- | :--- | :--- |
+| `fullname` | `Object` | **Yes** | Container object for the user's name details. |
+| `fullname.firstname` | `String` | **Yes** | User's first name. Must be at least **3 characters** long. |
+| `fullname.lastname` | `String` | No | User's last name. If provided, must be at least **3 characters** long. |
+| `email` | `String` | **Yes** | A valid email address. |
+| `password` | `String` | **Yes** | User's password. Must be at least **6 characters** long. |
+
+#### Example Request Body
+```json
+{
+  "fullname": {
+    "firstname": "John",
+    "lastname": "Doe"
+  },
+  "email": "johndoe@example.com",
+  "password": "securePassword123"
+}
+```
+
+---
+
+### Responses & Status Codes
+
+#### 1. `201 Created`
+Returned when a user is successfully registered and created in the database.
+
+- **Response Body (JSON):**
+  - `token` (String): A JWT authentication token to authenticate subsequent requests.
+  - `user` (Object): The user document created in the database.
+
+##### Example Response:
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NGIwZjBhMTIzNDU2Nzg5MDEyMzQ1NjciLCJpYXQiOjE2ODkyOTQwMDB9.someSignature",
+  "user": {
+    "fullname": {
+      "firstname": "John",
+      "lastname": "Doe"
+    },
+    "_id": "64b0f0a12345678901234567",
+    "email": "johndoe@example.com"
+  }
+}
+```
+
+#### 2. `400 Bad Request`
+Returned when client-side validation fails (e.g., missing required fields, invalid email format, or passwords that are too short).
+
+- **Response Body (JSON):**
+  - `error` (Array): An array of validation error objects containing details from `express-validator`.
+
+##### Example Response (Invalid Email & Short Password):
+```json
+{
+  "error": [
+    {
+      "type": "field",
+      "value": "invalid-email",
+      "msg": "Invalid Email",
+      "path": "email",
+      "location": "body"
+    },
+    {
+      "type": "field",
+      "value": "123",
+      "msg": "Password must be atleast 6 characters long",
+      "path": "password",
+      "location": "body"
+    }
+  ]
+}
+```
+
+#### 3. `500 Internal Server Error`
+Returned for unexpected server errors (e.g., database connection issues).
