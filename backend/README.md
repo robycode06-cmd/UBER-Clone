@@ -194,3 +194,116 @@ Returned when authentication fails due to incorrect credentials (invalid email o
 
 #### 4. `500 Internal Server Error`
 Returned for unexpected server errors (e.g., database connection issues).
+
+---
+
+## User Profile Endpoint
+
+### Description
+Retrieves the profile details of the currently logged-in user. This endpoint requires a valid JWT token passed in the Authorization header or via cookies.
+
+---
+
+### Endpoint Information
+- **URL Path:** `/users/profile`
+- **HTTP Method:** `GET`
+- **Headers:**
+  - `Authorization: Bearer <JWT_token>`
+  - `Cookie: token=<JWT_token>`
+
+---
+
+### Request Body Schema
+This endpoint does not require a request body.
+
+---
+
+### Responses & Status Codes
+
+#### 1. `200 OK`
+Returned when the user profile is successfully retrieved.
+
+- **Response Body (JSON):**
+  - The authenticated user's profile details.
+
+##### Example Response:
+```json
+{
+  "fullname": {
+    "firstname": "John",
+    "lastname": "Doe"
+  },
+  "_id": "64b0f0a12345678901234567",
+  "email": "johndoe@example.com"
+}
+```
+
+#### 2. `401 Unauthorized`
+Returned when the request lacks a valid authentication token.
+
+- **Response Body (JSON):**
+  - `message` (String): `"Unauthorized"` (or `"Unautorized"`)
+
+##### Example Response:
+```json
+{
+  "message": "Unauthorized"
+}
+```
+
+#### 3. `500 Internal Server Error`
+Returned for unexpected server errors.
+
+---
+
+## User Logout Endpoint
+
+### Description
+Logs out the currently authenticated user by clearing the authentication cookie and adding the active JWT token to the blacklist collection.
+
+---
+
+### Endpoint Information
+- **URL Path:** `/users/logout`
+- **HTTP Method:** `GET`
+- **Headers:**
+  - `Authorization: Bearer <JWT_token>`
+  - `Cookie: token=<JWT_token>`
+
+---
+
+### Request Body Schema
+This endpoint does not require a request body.
+
+---
+
+### Responses & Status Codes
+
+#### 1. `200 OK`
+Returned when the user is successfully logged out.
+
+- **Response Body (JSON):**
+  - `message` (String): `"Logged Out"`
+
+##### Example Response:
+```json
+{
+  "message": "Logged Out"
+}
+```
+
+#### 2. `401 Unauthorized`
+Returned when the request lacks a valid authentication token.
+
+- **Response Body (JSON):**
+  - `message` (String): `"Unauthorized"` (or `"Unautorized"`)
+
+##### Example Response:
+```json
+{
+  "message": "Unauthorized"
+}
+```
+
+#### 3. `500 Internal Server Error`
+Returned for unexpected server errors.
