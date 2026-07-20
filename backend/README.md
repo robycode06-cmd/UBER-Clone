@@ -433,3 +433,227 @@ Returned when client-side validation fails (e.g., missing required fields, inval
 #### 3. `500 Internal Server Error`
 Returned for unexpected server errors (e.g., database connection issues).
 
+---
+
+## Captain Login Endpoint
+
+### Description
+Authenticates an existing captain using their email and password. Upon successful authentication, the API returns a JWT authentication token, sets it as a cookie named `token`, and returns the captain's profile details.
+
+---
+
+### Endpoint Information
+- **URL Path:** `/captains/login`
+- **HTTP Method:** `POST`
+- **Headers:**
+  - `Content-Type: application/json`
+
+---
+
+### Request Body Schema
+
+The request body must be a JSON object containing the captain's credentials.
+
+| Field Name | Type | Required | Description / Constraints |
+| :--- | :--- | :--- | :--- |
+| `email` | `String` | **Yes** | The captain's registered email address. Must be a valid email. |
+| `password` | `String` | **Yes** | The captain's password. Must be at least **3 characters** long. |
+
+#### Example Request Body
+```json
+{
+  "email": "janesmith@example.com",
+  "password": "securePassword456"
+}
+```
+
+---
+
+### Responses & Status Codes
+
+#### 1. `201 Created`
+Returned when the captain is successfully authenticated.
+
+- **Response Headers:**
+  - `Set-Cookie: token=<JWT_token>`
+- **Response Body (JSON):**
+  - `token` (String): A JWT authentication token to authenticate subsequent requests.
+  - `captain` (Object): The authenticated captain's document details.
+
+##### Example Response:
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NGIwZjBhMTIzNDU2Nzg5MDEyMzQ1NjciLCJpYXQiOjE2ODkyOTQwMDB9.someSignature",
+  "captain": {
+    "fullname": {
+      "firstname": "Jane",
+      "lastname": "Smith"
+    },
+    "email": "janesmith@example.com",
+    "status": "inactive",
+    "vehicle": {
+      "color": "white",
+      "plate": "MH-12-CD-5678",
+      "capacity": 4,
+      "vehicleType": "car"
+    },
+    "_id": "64b0f0a12345678901234567",
+    "__v": 0
+  }
+}
+```
+
+#### 2. `400 Bad Request`
+Returned when client-side validation fails or when the password is incorrect.
+
+- **Response Body (JSON):**
+  - **Case A (Validation Errors):** `errors` (Array) - An array of validation error objects.
+  - **Case B (Incorrect Password):** `message` (String) - `"Invalid Email or Password"`
+
+##### Example Response (Incorrect Password):
+```json
+{
+  "message": "Invalid Email or Password"
+}
+```
+
+#### 3. `401 Unauthorized`
+Returned when the email is not found in the system.
+
+- **Response Body (JSON):**
+  - `message` (String): `"Invali Email or Password"`
+
+##### Example Response:
+```json
+{
+  "message": "Invali Email or Password"
+}
+```
+
+#### 4. `500 Internal Server Error`
+Returned for unexpected server errors.
+
+---
+
+## Captain Profile Endpoint
+
+### Description
+Retrieves the profile details of the currently logged-in captain. This endpoint requires a valid JWT token passed in the Authorization header or via cookies.
+
+---
+
+### Endpoint Information
+- **URL Path:** `/captains/profile`
+- **HTTP Method:** `GET`
+- **Headers:**
+  - `Authorization: Bearer <JWT_token>`
+  - `Cookie: token=<JWT_token>`
+
+---
+
+### Request Body Schema
+This endpoint does not require a request body.
+
+---
+
+### Responses & Status Codes
+
+#### 1. `200 OK`
+Returned when the captain profile is successfully retrieved.
+
+- **Response Body (JSON):**
+  - `captain` (Object): The authenticated captain's profile details.
+
+##### Example Response:
+```json
+{
+  "captain": {
+    "fullname": {
+      "firstname": "Jane",
+      "lastname": "Smith"
+    },
+    "email": "janesmith@example.com",
+    "status": "inactive",
+    "vehicle": {
+      "color": "white",
+      "plate": "MH-12-CD-5678",
+      "capacity": 4,
+      "vehicleType": "car"
+    },
+    "_id": "64b0f0a12345678901234567",
+    "__v": 0
+  }
+}
+```
+
+#### 2. `401 Unauthorized`
+Returned when the request lacks a valid authentication token or the token is invalid/blacklisted.
+
+- **Response Body (JSON):**
+  - `message` (String): `"Unautorized"` or `"Unauthorized"`
+
+##### Example Response:
+```json
+{
+  "message": "Unautorized"
+}
+```
+
+#### 3. `500 Internal Server Error`
+Returned for unexpected server errors.
+
+---
+
+## Captain Logout Endpoint
+
+### Description
+Logs out the currently authenticated captain by clearing the authentication cookie and adding the active JWT token to the blacklist collection.
+
+---
+
+### Endpoint Information
+- **URL Path:** `/captains/logout`
+- **HTTP Method:** `GET`
+- **Headers:**
+  - `Authorization: Bearer <JWT_token>`
+  - `Cookie: token=<JWT_token>`
+
+---
+
+### Request Body Schema
+This endpoint does not require a request body.
+
+---
+
+### Responses & Status Codes
+
+#### 1. `200 OK`
+Returned when the captain is successfully logged out.
+
+- **Response Body (JSON):**
+  - `message` (String): `"Logout Successfully"`
+
+##### Example Response:
+```json
+{
+  "message": "Logout Successfully"
+}
+```
+
+#### 2. `401 Unauthorized`
+Returned when the request lacks a valid authentication token.
+
+- **Response Body (JSON):**
+  - `message` (String): `"Unautorized"` or `"Unauthorized"`
+
+##### Example Response:
+```json
+{
+  "message": "Unautorized"
+}
+```
+
+#### 3. `500 Internal Server Error`
+Returned for unexpected server errors.
+
+

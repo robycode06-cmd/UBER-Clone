@@ -1,6 +1,7 @@
 import express from "express";
 import { body } from "express-validator";
 import captainController from "../controllers/captain.controller.js";
+import authMiddleware from "../middlewares/auth.middleware.js";
 
 const captainRoute = express.Router();
 
@@ -17,7 +18,14 @@ captainRoute.post('/register',[
 
 ],captainController.registerCaptain)
 
+captainRoute.post('/login',[
+    body('email').isEmail().withMessage('Invalid Email'),
+    body('password').isLength({min:3}).withMessage('Password must be atleast 3 characters long')
+],captainController.loginCaptain)
 
+captainRoute.get('/profile',authMiddleware.authCaptain,captainController.getCaptainProfile);
+
+captainRoute.get('/logout',authMiddleware.authCaptain,captainController.logoutCaptain);
 
 
 export default captainRoute
