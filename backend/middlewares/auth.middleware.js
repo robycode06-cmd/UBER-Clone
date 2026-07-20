@@ -8,7 +8,7 @@ const authUser = async(req,res,next)=>{
     if(!token){
         return res.status(401).json({message:"Unautorized"});
     }
-    const isBlackListed = await USER_MODEL.findOne({token:token});
+    const isBlackListed = await BlacklistTokenModel.findOne({token:token});
     if(isBlackListed){
         return res.status(401).json({message:"Unauthorized"});
     }

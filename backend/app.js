@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 
 
 import userRouter from "./routes/user.routes.js";
+import captainRoute from "./routes/captain.routes.js";
 
 
 const app = express();
@@ -20,6 +21,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use('/users',userRouter);
+app.use('/captains',captainRoute);
 //routes
 app.get('/',(req,res)=>{
     res.send("hello World");
