@@ -1,22 +1,42 @@
-import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
-
+import React, { useContext, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import api from '../api/axios';
+import { UserDataContext } from '../context/Usercont';
 
 const UserLogin = () => {
     const [email, setemail] = useState('');
     const [password, setpassword] = useState('');
-    const [userData, setuserData] = useState({});
-    const submitHandler = (e)=>{
+    const [error, seterror] = useState('');
+    const [user,setuser] = useContext(UserDataContext);
+    const navigate = useNavigate();
+    
+    
+    const submitHandler = async(e)=>{
         e.preventDefault();
-        setuserData(
-            {
-                email,
-                password
-            }
-        ) 
+        const userData = {
+            
+            email,
+            password
+            
+        }
+        
+        try{
+        const responce = await api.post("/users/login",userData);
+        if(responce.status===200){
+            
+            const data = responce.data;
+            setuser(data.user);
+            localStorage.setItem('token',data.token);
+            navigate('/home');
+
+            
+        }}catch(err){
+            seterror(err);
+        }
+        
         setemail('');
         setpassword('');
-        console.log(userData);
+        
         
         
     }
@@ -34,6 +54,11 @@ const UserLogin = () => {
                 <p>New Here? <Link to='/signup' className='text-blue-600' >Create New Account</Link></p>
                 
             </form>
+            <div className='flex items-center justify-center text-red-600'>
+                {error &&(
+                    <p>Invalid Eamil or Password</p>
+                )}
+            </div>
         </div>
         <div className='px-7'>
             <Link to='/captain-login'>
