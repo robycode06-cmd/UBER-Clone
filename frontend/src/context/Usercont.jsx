@@ -5,7 +5,7 @@ import React, { createContext, useState } from 'react'
 export const UserDataContext = createContext();
 const Usercont = ({children}) => {
    const [user, setuser] = useState({
-    email:'',
+    email:'', 
     password:'',
     fullname:{
         firstname:'',
