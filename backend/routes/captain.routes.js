@@ -3,7 +3,7 @@ import { body } from "express-validator";
 import captainController from "../controllers/captain.controller.js";
 import authMiddleware from "../middlewares/auth.middleware.js";
 
-const captainRoute = express.Router();
+const captainRoute = express.Router(); 
 
 captainRoute.post('/register',[
     body('email').isEmail().withMessage('Invalid Email'),
