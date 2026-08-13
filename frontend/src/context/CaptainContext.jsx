@@ -23,7 +23,7 @@ const CaptainContext = ({children}) => {
         lng:null
     }
     })
-  return (
+  return ( 
     <>
         <CaptainDataContext value={[captain,setcaptain]}>
             {children}

@@ -26,6 +26,7 @@ const UserLogin = () => {
             
             const data = responce.data;
             setuser(data.user);
+            
             localStorage.setItem('token',data.token);
             navigate('/home');
 
