@@ -13,7 +13,7 @@ const CaptainLogin = () => {
         e.preventDefault();
         const newCaptain = {
             email,
-            password
+            password 
         }
         try{
             const responce = await api.post('/captains/login',newCaptain);

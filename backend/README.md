@@ -656,4 +656,283 @@ Returned when the request lacks a valid authentication token.
 #### 3. `500 Internal Server Error`
 Returned for unexpected server errors.
 
+---
+
+## Maps - Get Coordinates Endpoint
+
+### Description
+Retrieves the latitude and longitude coordinates for a given address.
+
+---
+
+### Endpoint Information
+- **URL Path:** `/maps/get-coordinates`
+- **HTTP Method:** `GET`
+- **Headers:**
+  - `Authorization: Bearer <JWT_token>`
+
+---
+
+### Query Parameters
+
+| Parameter Name | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `address` | `String` | **Yes** | The address or location description to geocode. |
+
+---
+
+### Responses & Status Codes
+
+#### 1. `200 OK`
+Returned when the coordinates are successfully retrieved.
+
+- **Response Body (JSON):**
+  - `ltd` (Number): Latitude coordinate of the address.
+  - `lng` (Number): Longitude coordinate of the address.
+
+##### Example Response:
+```json
+{
+  "ltd": 28.6139391,
+  "lng": 77.2090212
+}
+```
+
+#### 2. `400 Bad Request`
+Returned when validation fails (e.g., missing address query parameter).
+
+#### 3. `404 Not Found`
+Returned when the coordinates for the given address could not be found.
+
+##### Example Response:
+```json
+{
+  "message": "Coordinate not found"
+}
+```
+
+#### 4. `500 Internal Server Error`
+Returned for unexpected server errors.
+
+---
+
+## Maps - Get Distance and Time Endpoint
+
+### Description
+Calculates the travel distance and estimated duration between an origin and a destination address.
+
+---
+
+### Endpoint Information
+- **URL Path:** `/maps/get-distanceTime`
+- **HTTP Method:** `GET`
+- **Headers:**
+  - `Authorization: Bearer <JWT_token>`
+
+---
+
+### Query Parameters
+
+| Parameter Name | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `origin` | `String` | **Yes** | The starting address or location. |
+| `destination` | `String` | **Yes** | The destination address or location. |
+
+---
+
+### Responses & Status Codes
+
+#### 1. `200 OK`
+Returned when the distance and time estimation is calculated successfully.
+
+- **Response Body (JSON):**
+  - `distance` (String): Human-readable travel distance (e.g., "15.4 km").
+  - `distanceValue` (Number): Distance in meters.
+  - `duration` (String): Human-readable travel duration (e.g., "30 mins").
+  - `durationValue` (Number): Duration in seconds.
+
+##### Example Response:
+```json
+{
+  "distance": "12.3 km",
+  "distanceValue": 12300,
+  "duration": "25 mins",
+  "durationValue": 1500
+}
+```
+
+#### 2. `400 Bad Request`
+Returned when validation fails or required parameters are missing.
+
+#### 3. `500 Internal Server Error`
+Returned for unexpected server errors.
+
+---
+
+## Maps - Place Autocomplete Suggestions Endpoint
+
+### Description
+Retrieves autocomplete address suggestions based on a search string.
+
+---
+
+### Endpoint Information
+- **URL Path:** `/maps/suggestion`
+- **HTTP Method:** `GET`
+- **Headers:**
+  - `Authorization: Bearer <JWT_token>`
+
+---
+
+### Query Parameters
+
+| Parameter Name | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `input` | `String` | **Yes** | The partial address string to search for suggestions. |
+
+---
+
+### Responses & Status Codes
+
+#### 1. `200 OK`
+Returned when autocomplete suggestions are retrieved successfully.
+
+- **Response Body (JSON):**
+  - An array of Google Places autocomplete prediction objects.
+
+##### Example Response:
+```json
+[
+  {
+    "description": "Sheryians Coding School, Zone-II, Maharana Pratap Nagar, Bhopal, Madhya Pradesh, India",
+    "place_id": "ChIJc7_tH2sNfDkR4Vw8iVw6wG8",
+    "types": ["point_of_interest", "establishment"]
+  }
+]
+```
+
+#### 2. `400 Bad Request`
+Returned when validation fails or input parameter is missing.
+
+#### 3. `500 Internal Server Error`
+Returned for unexpected server errors.
+
+---
+
+## Rides - Create Ride Endpoint
+
+### Description
+Creates a new ride request, calculates fares, generates a unique OTP, and registers the ride in the database in a pending status.
+
+---
+
+### Endpoint Information
+- **URL Path:** `/rides/create`
+- **HTTP Method:** `POST`
+- **Headers:**
+  - `Content-Type: application/json`
+  - `Authorization: Bearer <JWT_token>`
+
+---
+
+### Request Body Schema
+
+| Field Name | Type | Required | Description / Constraints |
+| :--- | :--- | :--- | :--- |
+| `pickup` | `String` | **Yes** | The starting address (must be at least 3 characters). |
+| `destination` | `String` | **Yes** | The destination address (must be at least 3 characters). |
+| `vehicleType` | `String` | **Yes** | The requested vehicle type. Must be one of: `'auto'`, `'car'`, or `'motorcycle'`. |
+
+#### Example Request Body
+```json
+{
+  "pickup": "Sheryians Coding School, Bhopal",
+  "destination": "DB Mall, Bhopal",
+  "vehicleType": "car"
+}
+```
+
+---
+
+### Responses & Status Codes
+
+#### 1. `201 Created`
+Returned when the ride is successfully created.
+
+- **Response Body (JSON):**
+  - `userId` (String): The ID of the requesting user.
+  - `pickup` (String): The pickup location.
+  - `destination` (String): The destination location.
+  - `fare` (Number): The calculated fare for the chosen vehicle type.
+  - `status` (String): Default value `"pending"`.
+  - `_id` (String): The unique ID of the created ride.
+
+##### Example Response:
+```json
+{
+  "userId": "64b0f0a12345678901234567",
+  "pickup": "Sheryians Coding School, Bhopal",
+  "destination": "DB Mall, Bhopal",
+  "fare": 185,
+  "status": "pending",
+  "_id": "64b0f0a22345678901234568"
+}
+```
+
+#### 2. `400 Bad Request`
+Returned when client-side validation fails or when required fields are invalid.
+
+#### 3. `500 Internal Server Error`
+Returned for unexpected database or server errors.
+
+---
+
+## Rides - Get Fare Endpoint
+
+### Description
+Calculates the estimated fare for all vehicle types ('car', 'auto', 'motorcycle') between a pickup and a destination.
+
+---
+
+### Endpoint Information
+- **URL Path:** `/rides/get-fair`
+- **HTTP Method:** `GET`
+- **Headers:**
+  - `Authorization: Bearer <JWT_token>`
+
+---
+
+### Query Parameters
+
+| Parameter Name | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `pickup` | `String` | **Yes** | The pickup address (must be at least 3 characters). |
+| `destination` | `String` | **Yes** | The destination address. |
+
+---
+
+### Responses & Status Codes
+
+#### 1. `200 OK`
+Returned when the fare calculation is successful.
+
+- **Response Body (JSON):**
+  - An object mapping vehicle types (`auto`, `car`, `motorcycle`) to their respective calculated fare values in currency units.
+
+##### Example Response:
+```json
+{
+  "auto": 120,
+  "car": 185,
+  "motorcycle": 85
+}
+```
+
+#### 2. `400 Bad Request`
+Returned when query parameter validation fails.
+
+#### 3. `500 Internal Server Error`
+Returned for unexpected server errors.
+
+
 
