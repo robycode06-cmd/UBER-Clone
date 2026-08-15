@@ -5,7 +5,8 @@ import { createContext } from 'react';
 
 import { io } from "socket.io-client";
 
-const socket = io(`${import.meta.env.VITE_BASE_URL}`);
+console.log("Socket client attempting connection to:", import.meta.env.VITE_BASE_URL || "http://localhost:4000");
+const socket = io(import.meta.env.VITE_BASE_URL || "http://localhost:4000");
 
 
 export const SocketContext = createContext();
@@ -14,11 +15,11 @@ const SocketContextProvider = ({children}) => {
   useEffect(() => {
         //Basic connection logic
         socket.on('connect',()=>{
-          console.log('Connected to Server');
+          console.log('Connected to Server. Socket ID:', socket.id);
         })
   
         socket.on('disconnect',()=>{
-          console.log('Disconnect from Server')
+          console.log('Disconnected from Server')
         })
   
         

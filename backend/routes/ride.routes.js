@@ -21,6 +21,26 @@ ride_router.get('/get-fair',
     rideController.getFareController);
 
 
+ride_router.post('/confirm',
+    authMiddleware.authCaptain,
+    body('rideId').isMongoId().withMessage('Invalid ride id'),
+    rideController.confirmRide
+
+)
+
+ride_router.get('/start-ride',
+    authMiddleware.authCaptain,
+    query('otp').isString().isLength({min:6,max:6}).withMessage('Invalid Otp'),
+    query('rideId').isMongoId().withMessage('Invalid ride id'),
+    rideController.startRide
+)
+
+ride_router.post('/end-ride',
+    authMiddleware.authCaptain,
+   
+    body('rideId').isMongoId().withMessage('Invalid ride id'),
+    rideController.endRide
+)
 
 
 

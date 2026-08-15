@@ -12,6 +12,7 @@ const CaptainProtectorWrapper = ({children}) => {
     useEffect(() => {
         if(!captainToken){
             navigate('/captain-login');
+            return;
         }
         api.get('/captains/profile',{
           headers:{
@@ -23,9 +24,9 @@ const CaptainProtectorWrapper = ({children}) => {
             setIsLoading(false);
           }
         }).catch(err => {
-            console.log(err);
-            localStorage.removeItem('token'); // Clear invalid token
-            navigate('/login');
+            console.log("Captain profile fetch failed:", err);
+            localStorage.removeItem('captainToken'); // Clear invalid captain token
+            navigate('/captain-login');
         });
     }, [captainToken,navigate,setcaptain])
     
