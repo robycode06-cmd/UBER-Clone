@@ -53,8 +53,9 @@ export function initializesocket(server){
 
 export function sendMessageToSocketId(socketId,messageObject){
     //send message to particular socket id
+    console.log(`Sending message to ${socketId} `, messageObject);
     if(io){
-        io.to(socketId).emit(messageObject.event,messageObject);
+        io.to(socketId).emit(messageObject.event,messageObject.data);
     }else{
         console.log('Socket.io is not initialized');
     }

@@ -7,6 +7,8 @@ import gsap from 'gsap';
 import ConfirmRidepopup from '../components/ConfirmRidepopup';
 import { CaptainDataContext } from '../context/CaptainContext';
 import { SocketContext } from '../context/SocketContextProvider';
+import ConfirmedRide from '../components/ConfirmedRide';
+import api from '../api/axios';
 
 gsap.registerPlugin(useGSAP);
 
@@ -14,15 +16,36 @@ const CaptainHome = () => {
   const ridepopref = useRef(null);
   const confirmRidePopupref = useRef(null);
 
-  const [Ridepopuppanel, setRidepopuppanel] = useState(true);
+  const [Ridepopuppanel, setRidepopuppanel] = useState(false);
   const [confirmRidePanel, setconfirmRidePanel] = useState(false);
+  const [ride, setRide] = useState(null);
 
   const {socket} = useContext(SocketContext);
   const [captain,setcaptain] = useContext(CaptainDataContext);
 
-  useEffect(() => {
-    if (!captain?._id) return;
+  async function confirmRide() {
+    const token = localStorage.getItem('captainToken');
+    const responce = await api.post(`/rides/confirm`,{
+      rideId:ride._id,
+      captainId : captain._id,
 
+     
+    }, {headers:{
+        Authorization: `Bearer ${localStorage.getItem('captainToken')}`
+      }});
+
+    setRidepopuppanel(false);
+    
+    setconfirmRidePanel(true);
+  } 
+
+  useEffect(() => {
+    if (!captain?._id) {
+      console.log("CaptainHome: captain data is not loaded yet:", captain);
+      return;
+    }
+
+    console.log("CaptainHome: Emitting join event for captain ID:", captain._id, "Socket connected:", socket.connected);
     socket.emit('join', {
       userId: captain._id,
       userType: "captain"
@@ -55,13 +78,17 @@ const CaptainHome = () => {
     const locationInterval = setInterval(updateLocation, 10000);
     updateLocation();
 
-    return () => clearInterval(locationInterval);
+    socket.on('new-ride', (data) => {
+      console.log("New ride received via socket:", data);
+      setRide(data);
+      setRidepopuppanel(true);
+    });
+
+    return () => {
+      clearInterval(locationInterval);
+      socket.off('new-ride');
+    };
   }, [captain]);
-  
-  socket.on('new-ride',(data)=>{
-    console.log(data);
-    
-  })
   useGSAP(()=>{ 
     if(Ridepopuppanel){
       gsap.to(ridepopref.current,{
@@ -103,11 +130,11 @@ const CaptainHome = () => {
             <CaptainDetails></CaptainDetails>
         </div>
         <div ref={ridepopref} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 '>
-            <RidePopup  setRidepopuppanel={setRidepopuppanel} setconfirmRidePanel={setconfirmRidePanel}/>
+            <RidePopup ride={ride} setRidepopuppanel={setRidepopuppanel}  setconfirmRidePanel={setconfirmRidePanel} confirmRide ={confirmRide}/>
         </div>
 
         <div ref={confirmRidePopupref} className='fixed h-screen w-full z-10 bottom-0 translate-y-full  bg-white px-3 py-6 '>
-            <ConfirmRidepopup setRidepopuppanel={setRidepopuppanel} setconfirmRidePanel={setconfirmRidePanel}/>
+            <ConfirmRidepopup ride={ride} setRidepopuppanel={setRidepopuppanel} setconfirmRidePanel={setconfirmRidePanel}/>
         </div>
     </div>
   )
